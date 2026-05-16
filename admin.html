@@ -560,6 +560,149 @@
   .toast.error { background: var(--red); }
   .toast.success { background: var(--green); }
 
+  /* ── VIEW TOGGLE ── */
+  .view-toggle {
+    display: flex;
+    gap: 0;
+    padding: 12px 18px 0;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .view-tabs {
+    display: flex;
+    background: var(--cream-dark);
+    border: 1.5px solid var(--ink);
+    border-radius: 100px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .view-tab {
+    padding: 7px 14px;
+    border: none;
+    background: transparent;
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .view-tab.active {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .export-btn {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── TABLE VIEW ── */
+  .table-wrap {
+    padding: 16px 18px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .booking-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .booking-table thead {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .booking-table th {
+    padding: 12px 10px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .booking-table th:hover { color: var(--accent); }
+  .booking-table th .sort-icon {
+    margin-left: 4px;
+    opacity: 0.5;
+    font-size: 9px;
+  }
+  .booking-table th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+  .booking-table tbody tr {
+    border-top: 1px solid var(--line);
+    background: var(--cream);
+    transition: background 0.15s;
+  }
+  .booking-table tbody tr:hover { background: var(--cream-dark); }
+  .booking-table tbody tr.row-completed { background: var(--blue-soft); }
+  .booking-table tbody tr.row-cancelled { background: #FAEEDA; opacity: 0.7; }
+  .booking-table td {
+    padding: 12px 10px;
+    vertical-align: middle;
+    color: var(--ink);
+  }
+  .booking-table td.col-time {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 13px;
+  }
+  .booking-table td.col-name {
+    font-weight: 500;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .booking-table td.col-ref {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .booking-table .mini-tag {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    display: inline-block;
+  }
+  .mini-tag.confirmed { background: var(--green); color: white; }
+  .mini-tag.completed { background: var(--blue); color: white; }
+  .mini-tag.cancelled { background: var(--muted); color: white; }
+  .booking-table td.col-actions {
+    white-space: nowrap;
+  }
+  .table-action {
+    background: none;
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    margin-right: 4px;
+    font-family: inherit;
+  }
+  .table-action:hover { background: var(--cream-dark); }
+  .table-action.del { color: var(--red); border-color: var(--red); }
+  .table-action.del:hover { background: var(--red); color: white; }
+
   .hidden { display: none !important; }
 </style>
 </head>
@@ -614,6 +757,14 @@
     <button class="filter-chip" data-filter="completed">เสร็จแล้ว</button>
     <button class="filter-chip" data-filter="cancelled">ยกเลิก</button>
     <button class="filter-chip" data-filter="all">ทั้งหมด</button>
+  </div>
+
+  <div class="view-toggle">
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="cards">🗂 การ์ด</button>
+      <button class="view-tab" data-view="table">📊 ตาราง</button>
+    </div>
+    <button class="export-btn" id="export-btn" title="ดาวน์โหลด CSV">⬇ CSV</button>
   </div>
 
   <div id="booking-container">
@@ -844,6 +995,10 @@
     return groups;
   }
 
+  let currentView = 'cards';
+  let sortColumn = 'booking_date';
+  let sortAsc = true;
+
   // ───── RENDER ─────
   function renderBookings() {
     const list = getFilteredBookings();
@@ -864,10 +1019,18 @@
       return;
     }
 
+    if (currentView === 'table') {
+      renderTable(list);
+    } else {
+      renderCards(list);
+    }
+  }
+
+  function renderCards(list) {
+    const container = document.getElementById('booking-container');
     const groups = groupByDate(list);
     const dates = Object.keys(groups).sort();
     let html = '';
-
     dates.forEach(date => {
       html += `
         <div class="section-header">
@@ -881,6 +1044,122 @@
     });
     container.innerHTML = html;
   }
+
+  function renderTable(list) {
+    const container = document.getElementById('booking-container');
+    const sorted = [...list].sort((a, b) => {
+      let av = a[sortColumn] || '';
+      let bv = b[sortColumn] || '';
+      if (sortColumn === 'booking_date') {
+        av = (a.booking_date || '') + ' ' + (a.booking_time || '');
+        bv = (b.booking_date || '') + ' ' + (b.booking_time || '');
+      }
+      const cmp = String(av).localeCompare(String(bv), 'th');
+      return sortAsc ? cmp : -cmp;
+    });
+
+    const statusLabel = { confirmed: 'ยืนยัน', completed: 'เสร็จ', cancelled: 'ยกเลิก' };
+    const sortIcon = col => col === sortColumn ? (sortAsc ? '▲' : '▼') : '⇅';
+
+    let rows = sorted.map(b => {
+      const st = b.status || 'confirmed';
+      return `
+        <tr class="row-${st}">
+          <td class="col-time">${formatDateShort(b.booking_date)}</td>
+          <td class="col-time">${b.booking_time || '—'}</td>
+          <td class="col-name" title="${escapeHtml(b.customer_name)}">${escapeHtml(b.customer_name || '—')}</td>
+          <td>${b.customer_phone ? `<a href="tel:${b.customer_phone}" style="color:var(--accent);text-decoration:none;">${escapeHtml(b.customer_phone)}</a>` : '—'}</td>
+          <td>${escapeHtml(b.customer_line) || '—'}</td>
+          <td class="col-ref">#${b.ref_id || '—'}</td>
+          <td><span class="mini-tag ${st}">${statusLabel[st]}</span></td>
+          <td class="col-actions">
+            <button class="table-action" onclick="openEditModal('${b.id}')" title="แก้ไข">✏️</button>
+            ${st === 'confirmed' ? `<button class="table-action" onclick="markStatus('${b.id}', 'completed')" title="มาร์คเสร็จ">✓</button>` : ''}
+            ${st !== 'cancelled' ? `<button class="table-action" onclick="cancelBooking('${b.id}', '${escapeHtml(b.customer_name)}')" title="ยกเลิก">✕</button>` : `<button class="table-action" onclick="restoreBooking('${b.id}')" title="กู้คืน">↺</button>`}
+            <button class="table-action del" onclick="deleteBooking('${b.id}', '${escapeHtml(b.customer_name)}')" title="ลบถาวร">🗑</button>
+          </td>
+        </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="table-wrap">
+        <table class="booking-table">
+          <thead>
+            <tr>
+              <th class="${sortColumn === 'booking_date' ? 'sorted' : ''}" onclick="sortBy('booking_date')">วันที่ <span class="sort-icon">${sortIcon('booking_date')}</span></th>
+              <th class="${sortColumn === 'booking_time' ? 'sorted' : ''}" onclick="sortBy('booking_time')">เวลา <span class="sort-icon">${sortIcon('booking_time')}</span></th>
+              <th class="${sortColumn === 'customer_name' ? 'sorted' : ''}" onclick="sortBy('customer_name')">ชื่อ <span class="sort-icon">${sortIcon('customer_name')}</span></th>
+              <th>โทร</th>
+              <th>LINE</th>
+              <th>REF</th>
+              <th class="${sortColumn === 'status' ? 'sorted' : ''}" onclick="sortBy('status')">สถานะ <span class="sort-icon">${sortIcon('status')}</span></th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function formatDateShort(dateStr) {
+    if (!dateStr) return '—';
+    const [y, m, d] = dateStr.split('-');
+    return `${parseInt(d)}/${parseInt(m)}/${(parseInt(y) + 543).toString().slice(-2)}`;
+  }
+
+  function sortBy(col) {
+    if (sortColumn === col) sortAsc = !sortAsc;
+    else { sortColumn = col; sortAsc = true; }
+    renderBookings();
+  }
+  window.sortBy = sortBy;
+
+  // ───── VIEW TOGGLE ─────
+  document.querySelectorAll('.view-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentView = btn.dataset.view;
+      renderBookings();
+    });
+  });
+
+  // ───── CSV EXPORT ─────
+  function exportCSV() {
+    const list = getFilteredBookings();
+    if (list.length === 0) {
+      toast('ไม่มีข้อมูลให้ export', 'error');
+      return;
+    }
+    const statusLabel = { confirmed: 'ยืนยัน', completed: 'เสร็จแล้ว', cancelled: 'ยกเลิก' };
+    const headers = ['วันที่', 'เวลา', 'ชื่อลูกค้า', 'เบอร์โทร', 'LINE ID', 'Ref', 'สถานะ', 'สร้างเมื่อ'];
+    const rows = list.map(b => [
+      b.booking_date || '',
+      b.booking_time || '',
+      b.customer_name || '',
+      b.customer_phone || '',
+      b.customer_line || '',
+      b.ref_id || '',
+      statusLabel[b.status] || b.status,
+      b.created_at ? new Date(b.created_at).toLocaleString('th-TH') : ''
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = `nailnery-bookings-${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast(`บันทึก CSV แล้ว (${list.length} รายการ)`, 'success');
+  }
+  document.getElementById('export-btn').addEventListener('click', exportCSV);
 
   function renderBookingCard(b) {
     const status = b.status || 'confirmed';

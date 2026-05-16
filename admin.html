@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NAIL NERY · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script>
+  const SUPABASE_URL = 'https://exhsrkwbfitfqpdjewsb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4aHNya3diZml0ZnFwZGpld3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NTk3MjcsImV4cCI6MjA5NDQzNTcyN30.ZLnJPDY78LI9V5ljHywPuXYChTRekbliryLb-M1zF88';
+  const ADMIN_PASSWORD = 'nailnery2025'; // เปลี่ยนตรงนี้เป็นรหัสที่ต้องการ
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FAF6EC;
+    --cream-dark: #F2EBD8;
+    --ink: #0E0E0E;
+    --ink-soft: #2A2A2A;
+    --muted: #8A8377;
+    --line: #E5DDC8;
+    --accent: #E85D43;
+    --green: #2D7A4A;
+    --green-soft: #E8F2EC;
+    --red: #C44530;
+    --red-soft: #FBEAE6;
+    --shadow: 0 2px 0 var(--ink);
+  }
+
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  body { padding-bottom: 60px; }
+
+  /* ── LOGIN ── */
+  #login-view {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .login-box {
+    background: var(--cream-dark);
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .login-box .badge {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .login-box h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    line-height: 1.05;
+    margin-bottom: 4px;
+  }
+  .login-box h1 em { font-style: italic; color: var(--accent); }
+  .login-box p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .login-box label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .login-box input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 16px;
+    background: var(--cream);
+    margin-bottom: 16px;
+  }
+  .login-box input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .login-box button {
+    width: 100%;
+    padding: 14px;
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .login-box button:active { transform: translateY(1px); }
+  .login-error {
+    color: var(--red);
+    font-size: 12px;
+    margin-top: 8px;
+    display: none;
+  }
+  .login-error.show { display: block; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1.5px solid var(--ink);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header .brand {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+  header .brand span { color: var(--accent); }
+  header .logout-btn {
+    background: transparent;
+    border: 1px solid var(--cream);
+    color: var(--cream);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+
+  /* ── STATS ── */
+  .stats {
+    padding: 16px 18px 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .stat-card {
+    background: var(--cream-dark);
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-card .num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .stat-card .lbl {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .stat-card.today { background: var(--ink); color: var(--cream); }
+  .stat-card.today .num { color: var(--accent); }
+  .stat-card.today .lbl { color: var(--cream); opacity: 0.7; }
+
+  /* ── FILTERS ── */
+  .filters {
+    padding: 16px 18px 0;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-chip.active {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 18px 10px;
+  }
+  .section-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .section-header .count {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── BOOKING CARDS ── */
+  .booking-list {
+    padding: 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .booking-card {
+    background: var(--cream-dark);
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 0.1s;
+  }
+  .booking-card.confirmed { background: var(--green-soft); }
+  .booking-card.cancelled { background: var(--cream-dark); opacity: 0.6; }
+  .booking-card.cancelled .booking-name { text-decoration: line-through; }
+
+  .booking-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .booking-time {
+    text-align: center;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 8px 12px;
+    border-radius: 6px;
+    min-width: 70px;
+    flex-shrink: 0;
+  }
+  .booking-time .hr {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .booking-time .lbl {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+  .booking-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .booking-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  .booking-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .booking-meta .row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .booking-meta .label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    min-width: 38px;
+  }
+  .booking-meta .value { word-break: break-word; }
+  .booking-meta a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent);
+  }
+  .booking-ref {
+    display: inline-block;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+  }
+
+  /* ── ACTION BUTTONS ── */
+  .booking-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--ink);
+  }
+  .btn-action {
+    padding: 10px 12px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: 1.5px solid var(--ink);
+    transition: transform 0.1s;
+  }
+  .btn-action:active { transform: translateY(1px); }
+  .btn-line {
+    background: #06C755;
+    color: white;
+    border-color: #06C755;
+  }
+  .btn-call {
+    background: var(--cream);
+    color: var(--ink);
+  }
+  .btn-cancel {
+    background: var(--red-soft);
+    color: var(--red);
+    border-color: var(--red);
+    width: 100%;
+    margin-top: 8px;
+  }
+  .btn-undo {
+    background: var(--ink);
+    color: var(--cream);
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* ── EMPTY/LOADING ── */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  .empty-state .msg {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .empty-state .sub {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── REFRESH BUTTON ── */
+  .refresh-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: var(--ink);
+    color: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    box-shadow: 3px 3px 0 var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    z-index: 5;
+  }
+  .refresh-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--accent); }
+  .refresh-btn.loading { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+
+  /* ── DECORATIVE ── */
+  .deco-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 0 10px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+  }
+  .deco-divider::before,
+  .deco-divider::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: var(--line);
+  }
+</style>
+</head>
+<body>
+
+<!-- ─────────── LOGIN VIEW ─────────── -->
+<div id="login-view">
+  <div class="login-box">
+    <span class="badge">ADMIN ONLY</span>
+    <h1>Welcome<br><em>back.</em></h1>
+    <p>กรุณาใส่รหัสผ่านเพื่อเข้าระบบ</p>
+    <label for="pwd">รหัสผ่าน</label>
+    <input id="pwd" type="password" placeholder="••••••••" autocomplete="off">
+    <button id="login-btn">เข้าสู่ระบบ →</button>
+    <div class="login-error" id="login-error">รหัสผ่านไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<!-- ─────────── DASHBOARD VIEW ─────────── -->
+<div id="dashboard-view" class="hidden">
+
+  <header>
+    <div class="brand">NAIL NERY <span>·</span> ADMIN</div>
+    <button class="logout-btn" id="logout-btn">ออก</button>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card today">
+      <div class="num" id="stat-today">0</div>
+      <div class="lbl">วันนี้</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="stat-week">0</div>
+      <div class="lbl">สัปดาห์นี้</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="stat-total">0</div>
+      <div class="lbl">ทั้งหมด</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <button class="filter-chip active" data-filter="upcoming">นัดล่วงหน้า</button>
+    <button class="filter-chip" data-filter="today">วันนี้</button>
+    <button class="filter-chip" data-filter="all">ทั้งหมด</button>
+    <button class="filter-chip" data-filter="cancelled">ยกเลิกแล้ว</button>
+  </div>
+
+  <!-- BOOKINGS -->
+  <div id="booking-container">
+    <div class="loading">กำลังโหลดข้อมูล...</div>
+  </div>
+
+</div>
+
+<!-- Floating refresh -->
+<button class="refresh-btn hidden" id="refresh-btn" title="รีเฟรช">↻</button>
+
+<script>
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let allBookings = [];
+  let currentFilter = 'upcoming';
+
+  // ───── LOGIN ─────
+  const SESSION_KEY = 'nn_admin_session';
+  function isLoggedIn() {
+    return sessionStorage.getItem(SESSION_KEY) === 'true';
+  }
+
+  function showDashboard() {
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('dashboard-view').classList.remove('hidden');
+    document.getElementById('refresh-btn').classList.remove('hidden');
+    loadBookings();
+  }
+
+  function showLogin() {
+    document.getElementById('login-view').classList.remove('hidden');
+    document.getElementById('dashboard-view').classList.add('hidden');
+    document.getElementById('refresh-btn').classList.add('hidden');
+  }
+
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const pwd = document.getElementById('pwd').value;
+    if (pwd === ADMIN_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      showDashboard();
+    } else {
+      document.getElementById('login-error').classList.add('show');
+      setTimeout(() => document.getElementById('login-error').classList.remove('show'), 2500);
+    }
+  });
+
+  document.getElementById('pwd').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('login-btn').click();
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById('pwd').value = '';
+    showLogin();
+  });
+
+  // ───── LOAD BOOKINGS ─────
+  async function loadBookings() {
+    const refresh = document.getElementById('refresh-btn');
+    refresh.classList.add('loading');
+
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .order('booking_date', { ascending: true })
+        .order('booking_time', { ascending: true });
+
+      if (error) throw error;
+      allBookings = data || [];
+      updateStats();
+      renderBookings();
+    } catch(e) {
+      document.getElementById('booking-container').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <div class="msg">โหลดข้อมูลไม่สำเร็จ</div>
+          <div class="sub">${e.message}</div>
+        </div>`;
+    } finally {
+      refresh.classList.remove('loading');
+    }
+  }
+
+  // ───── STATS ─────
+  function updateStats() {
+    const today = new Date().toISOString().split('T')[0];
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+
+    const active = allBookings.filter(b => b.status === 'confirmed');
+    document.getElementById('stat-today').textContent = active.filter(b => b.booking_date === today).length;
+    document.getElementById('stat-week').textContent = active.filter(b => b.booking_date >= weekStartStr).length;
+    document.getElementById('stat-total').textContent = active.length;
+  }
+
+  // ───── RENDER ─────
+  function formatDateLong(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const days = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+    const dt = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+    const isToday = dateStr === new Date().toISOString().split('T')[0];
+    const prefix = isToday ? 'วันนี้ · ' : `${days[dt.getDay()]}. `;
+    return prefix + parseInt(d) + ' ' + months[parseInt(m) - 1] + ' ' + (parseInt(y) + 543);
+  }
+
+  function getFilteredBookings() {
+    const today = new Date().toISOString().split('T')[0];
+    let list = [];
+
+    switch(currentFilter) {
+      case 'upcoming':
+        list = allBookings.filter(b => b.status === 'confirmed' && b.booking_date >= today);
+        break;
+      case 'today':
+        list = allBookings.filter(b => b.status === 'confirmed' && b.booking_date === today);
+        break;
+      case 'cancelled':
+        list = allBookings.filter(b => b.status === 'cancelled');
+        break;
+      case 'all':
+      default:
+        list = allBookings;
+    }
+    return list;
+  }
+
+  function groupByDate(bookings) {
+    const groups = {};
+    bookings.forEach(b => {
+      if (!groups[b.booking_date]) groups[b.booking_date] = [];
+      groups[b.booking_date].push(b);
+    });
+    return groups;
+  }
+
+  function renderBookings() {
+    const list = getFilteredBookings();
+    const container = document.getElementById('booking-container');
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">✨</div>
+          <div class="msg">ยังไม่มีนัด</div>
+          <div class="sub">${currentFilter === 'today' ? 'วันนี้ว่างทั้งวัน' : 'รอลูกค้าเข้ามาจองนะ'}</div>
+        </div>`;
+      return;
+    }
+
+    const groups = groupByDate(list);
+    const dates = Object.keys(groups).sort();
+    let html = '';
+
+    dates.forEach(date => {
+      html += `
+        <div class="section-header">
+          <h2>${formatDateLong(date)}</h2>
+          <span class="count">${groups[date].length} นัด</span>
+        </div>
+        <div class="booking-list">
+      `;
+      groups[date].forEach(b => {
+        html += renderBookingCard(b);
+      });
+      html += `</div>`;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function renderBookingCard(b) {
+    const isCancelled = b.status === 'cancelled';
+    const cardClass = isCancelled ? 'cancelled' : 'confirmed';
+    const phone = b.customer_phone || '';
+    const lineId = b.customer_line || '';
+
+    return `
+      <div class="booking-card ${cardClass}">
+        <span class="booking-ref">#${b.ref_id || '—'}</span>
+        <div class="booking-row">
+          <div class="booking-time">
+            <div class="hr">${b.booking_time}</div>
+            <div class="lbl">น.</div>
+          </div>
+          <div class="booking-info">
+            <div class="booking-name">${escapeHtml(b.customer_name || 'ไม่ระบุชื่อ')}</div>
+            <div class="booking-meta">
+              <div class="row">
+                <span class="label">โทร</span>
+                <span class="value">${phone ? `<a href="tel:${phone}">${escapeHtml(phone)}</a>` : '—'}</span>
+              </div>
+              <div class="row">
+                <span class="label">LINE</span>
+                <span class="value">${escapeHtml(lineId || '—')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        ${isCancelled ? `
+          <button class="btn-action btn-undo" onclick="restoreBooking('${b.id}')">↺ กู้คืนนัด</button>
+        ` : `
+          <div class="booking-actions">
+            ${phone ? `<a href="tel:${phone}" class="btn-action btn-call" style="text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;">📞 โทร</a>` : `<button class="btn-action btn-call" disabled>—</button>`}
+            ${lineId ? `<button class="btn-action btn-line" onclick="copyLine('${escapeHtml(lineId)}')">💬 คัดลอก Line</button>` : `<button class="btn-action btn-line" disabled>—</button>`}
+          </div>
+          <button class="btn-action btn-cancel" onclick="cancelBooking('${b.id}', '${escapeHtml(b.customer_name)}')">✕ ยกเลิกนัดนี้</button>
+        `}
+      </div>
+    `;
+  }
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"
+    })[c]);
+  }
+
+  // ───── ACTIONS ─────
+  async function cancelBooking(id, name) {
+    if (!confirm(`ยืนยันยกเลิกนัดของ ${name}?`)) return;
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: 'cancelled' })
+        .eq('id', id);
+      if (error) throw error;
+      await loadBookings();
+    } catch(e) {
+      alert('ยกเลิกไม่สำเร็จ: ' + e.message);
+    }
+  }
+
+  async function restoreBooking(id) {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: 'confirmed' })
+        .eq('id', id);
+      if (error) throw error;
+      await loadBookings();
+    } catch(e) {
+      alert('กู้คืนไม่สำเร็จ: ' + e.message);
+    }
+  }
+
+  function copyLine(lineId) {
+    navigator.clipboard.writeText(lineId).then(() => {
+      const btns = document.querySelectorAll('.btn-line');
+      btns.forEach(b => {
+        if (b.textContent.includes('คัดลอก')) {
+          const orig = b.innerHTML;
+          b.innerHTML = '✓ คัดลอกแล้ว';
+          setTimeout(() => { b.innerHTML = orig; }, 1500);
+        }
+      });
+    });
+  }
+
+  // ───── FILTERS ─────
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      renderBookings();
+    });
+  });
+
+  // ───── REFRESH ─────
+  document.getElementById('refresh-btn').addEventListener('click', loadBookings);
+
+  // ───── INIT ─────
+  if (isLoggedIn()) {
+    showDashboard();
+  }
+
+  // Auto-refresh every 60s
+  setInterval(() => {
+    if (isLoggedIn()) loadBookings();
+  }, 60000);
+</script>
+</body>
+</html>

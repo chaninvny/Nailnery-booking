@@ -10,7 +10,7 @@
 <script>
   const SUPABASE_URL = 'https://exhsrkwbfitfqpdjewsb.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4aHNya3diZml0ZnFwZGpld3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NTk3MjcsImV4cCI6MjA5NDQzNTcyN30.ZLnJPDY78LI9V5ljHywPuXYChTRekbliryLb-M1zF88';
-  const ADMIN_PASSWORD = '1234'; // เปลี่ยนตรงนี้เป็นรหัสที่ต้องการ
+  const ADMIN_PASSWORD = 'nailnery2025'; // เปลี่ยนตรงนี้เป็นรหัสที่ต้องการ
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
@@ -500,7 +500,7 @@
 <button class="refresh-btn hidden" id="refresh-btn" title="รีเฟรช">↻</button>
 
 <script>
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let allBookings = [];
   let currentFilter = 'upcoming';
 
@@ -550,7 +550,7 @@
     refresh.classList.add('loading');
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('bookings')
         .select('*')
         .order('booking_date', { ascending: true })
@@ -713,7 +713,7 @@
   async function cancelBooking(id, name) {
     if (!confirm(`ยืนยันยกเลิกนัดของ ${name}?`)) return;
     try {
-      const { error } = await supabase
+      const { error } = await sb
         .from('bookings')
         .update({ status: 'cancelled' })
         .eq('id', id);
@@ -726,7 +726,7 @@
 
   async function restoreBooking(id) {
     try {
-      const { error } = await supabase
+      const { error } = await sb
         .from('bookings')
         .update({ status: 'confirmed' })
         .eq('id', id);

@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAIL NERY STUDIO · จองคิวทำเล็บ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ====================================================
+     SUPABASE CONFIG
+     1. ไปที่ https://supabase.com แล้วสร้าง project ฟรี
+     2. ไปที่ Settings > API แล้วก็อป Project URL และ anon key
+     3. ใส่ค่าตรงนี้แทน YOUR_SUPABASE_URL และ YOUR_ANON_KEY
+     ==================================================== -->
+<script>
+  const SUPABASE_URL = 'https://exhsrkwbfitfqpdjewsb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4aHNya3diZml0ZnFwZGpld3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NTk3MjcsImV4cCI6MjA5NDQzNTcyN30.ZLnJPDY78LI9V5ljHywPuXYChTRekbliryLb-M1zF88';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root {
+    --ink: #000000;
+    --paper: #FFFFFF;
+    --cream: #FFF6D6;
+    --cream-deep: #f0e4ba;
+    --line: #1a1a1a;
+    --muted: #6e6a5e;
+    --soft: #faf5e4;
+    --line-green: #06C755;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Thai', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .display { font-family: 'Archivo Black', sans-serif; letter-spacing: -0.02em; line-height: 0.9; text-transform: uppercase; }
+  .serif { font-family: 'DM Serif Display', serif; }
+  .serif-i { font-family: 'DM Serif Display', serif; font-style: italic; }
+
+  /* ---------- Background paper texture (subtle dotted grain) ---------- */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size: 18px 18px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  /* ---------- Top Bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    border-bottom: 1.5px solid var(--ink);
+    background: var(--cream);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand img {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    object-fit: cover;
+  }
+  .brand .name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+  }
+  .brand .name small {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .topbar .hours {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .topbar .hours strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    text-align: center;
+    padding: 64px 24px 32px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding: 6px 14px;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    background: var(--paper);
+  }
+  .hero .eyebrow::before { content: '✦'; font-size: 10px; }
+  .hero .eyebrow::after { content: '✦'; font-size: 10px; }
+
+  .hero h1 {
+    font-family: 'Archivo Black', sans-serif;
+    text-transform: uppercase;
+    font-size: clamp(56px, 11vw, 132px);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    margin: 0 0 8px;
+  }
+  .hero h1 .row2 {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-weight: normal;
+    text-transform: lowercase;
+    letter-spacing: -0.02em;
+    margin-top: 4px;
+  }
+  .hero p {
+    color: var(--muted);
+    margin: 22px auto 0;
+    max-width: 480px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .hero p strong { color: var(--ink); font-weight: 600; }
+
+  /* Decorative stars next to title */
+  .hero .star {
+    position: absolute;
+    font-size: 28px;
+    color: var(--ink);
+    opacity: 0.5;
+  }
+  .hero .star.s1 { top: 50px; left: 8%; transform: rotate(-12deg); }
+  .hero .star.s2 { top: 110px; right: 10%; transform: rotate(20deg); font-size: 36px; }
+  .hero .star.s3 { bottom: -10px; left: 14%; font-size: 22px; }
+
+  /* ---------- Layout ---------- */
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px 24px 80px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero .star { display: none; }
+  }
+
+  .card {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    padding: 28px;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .step-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 13px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .card-title h2 {
+    font-family: 'Archivo Black', sans-serif;
+    text-transform: uppercase;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    margin: 0;
+    flex: 1;
+  }
+  .card-title .hint {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Calendar ---------- */
+  .cal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .cal-head .month {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+  .cal-head .month em {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 16px;
+    margin-left: 6px;
+  }
+  .cal-nav {
+    display: flex;
+    gap: 8px;
+  }
+  .cal-nav button {
+    width: 38px; height: 38px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 50%;
+    transition: all .15s ease;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: inherit;
+  }
+  .cal-nav button:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .cal-nav button:disabled { opacity: 0.25; cursor: not-allowed; }
+
+  .cal-dow {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--ink);
+  }
+  .cal-dow span {
+    text-align: center;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    padding: 8px 0;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border: 1.5px solid transparent;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--ink);
+    transition: all .12s ease;
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .cal-day:hover:not(:disabled):not(.selected) {
+    background: var(--cream);
+    border-color: var(--ink);
+  }
+  .cal-day.empty { visibility: hidden; cursor: default; }
+  .cal-day:disabled {
+    color: #b8b8b8;
+    cursor: not-allowed;
+  }
+  .cal-day.today {
+    font-weight: 700;
+  }
+  .cal-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 5px; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  .cal-day.selected {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+  .cal-day.selected.today::after { background: var(--cream); }
+  .cal-day.full {
+    color: #b8b8b8;
+    text-decoration: line-through;
+  }
+
+  /* ---------- Slots ---------- */
+  .slot-date {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--ink);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .slot-date strong {
+    display: block;
+    color: var(--ink);
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 22px;
+    margin-top: 4px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .slots { display: grid; gap: 10px; }
+  .slot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    cursor: pointer;
+    transition: all .12s ease;
+    font-family: inherit;
+    color: var(--ink);
+    width: 100%;
+    text-align: left;
+  }
+  .slot:hover:not(:disabled) {
+    background: var(--cream);
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .slot .time {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+  }
+  .slot .label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .slot .status {
+    font-size: 10px;
+    color: var(--ink);
+    background: var(--cream);
+    border: 1px solid var(--ink);
+    padding: 5px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .slot.selected {
+    background: var(--ink);
+    color: var(--cream);
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .slot.selected .label { color: rgba(255,246,214,0.7); }
+  .slot.selected .status { background: var(--cream); color: var(--ink); }
+  .slot:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--soft);
+  }
+  .slot:disabled:hover { transform: none; box-shadow: none; background: var(--soft); }
+  .slot-empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 56px 16px;
+    font-size: 14px;
+    border: 1.5px dashed var(--ink);
+    border-radius: 4px;
+    background: var(--soft);
+  }
+  .slot-empty .big {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    color: var(--ink);
+    font-size: 28px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* ---------- Form ---------- */
+  .form-row { margin-bottom: 16px; }
+  .form-row label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 11px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: 0.1em;
+  }
+  .form-row label .req {
+    color: var(--ink);
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: normal;
+  }
+  .form-row input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    transition: all .12s ease;
+  }
+  .form-row input::placeholder { color: #b0b0b0; }
+  .form-row input:focus {
+    outline: none;
+    background: var(--cream);
+    box-shadow: 4px 4px 0 var(--ink);
+    transform: translate(-2px, -2px);
+  }
+  .summary {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+  }
+  .summary .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  .summary .row:first-child { padding-top: 0; }
+  .summary .row:last-child { padding-bottom: 0; }
+  .summary .row span:first-child {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+  }
+  .summary .row span:last-child {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 16px;
+  }
+
+  button.primary {
+    width: 100%;
+    padding: 18px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .12s ease;
+  }
+  button.primary:hover:not(:disabled) {
+    background: var(--cream);
+    color: var(--ink);
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.primary .arrow { display: inline-block; margin-left: 8px; }
+
+  /* ---------- Confirmation ---------- */
+  .confirm-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .confirm-card {
+    max-width: 560px;
+    width: 100%;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    padding: 44px 32px 32px;
+    box-shadow: 8px 8px 0 var(--ink);
+    text-align: center;
+    position: relative;
+  }
+  .confirm-card::before {
+    content: 'BOOKED';
+    position: absolute;
+    top: -14px; left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    padding: 6px 18px;
+    border-radius: 999px;
+  }
+  .check-wrap {
+    width: 84px; height: 84px;
+    margin: 8px auto 18px;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+    position: relative;
+  }
+  .check-wrap::before, .check-wrap::after {
+    content: '✦';
+    position: absolute;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .check-wrap::before { top: -8px; right: -4px; transform: rotate(15deg); }
+  .check-wrap::after { bottom: -2px; left: -8px; font-size: 11px; }
+  .check-wrap svg { width: 40px; height: 40px; }
+
+  .confirm-card h2 {
+    font-family: 'Archivo Black', sans-serif;
+    text-transform: uppercase;
+    font-size: 38px;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    margin: 0 0 4px;
+  }
+  .confirm-card h2 em {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    text-transform: lowercase;
+    font-weight: normal;
+    letter-spacing: -0.01em;
+    display: block;
+    margin-top: 2px;
+  }
+  .confirm-card .sub {
+    color: var(--muted);
+    margin: 12px auto 22px;
+    font-size: 14px;
+    max-width: 380px;
+  }
+  .confirm-detail {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin-bottom: 22px;
+    text-align: left;
+  }
+  .confirm-detail .when {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    text-align: center;
+    padding: 4px 0 16px;
+    border-bottom: 1px dashed var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .confirm-detail .when .time {
+    font-family: 'Archivo Black', sans-serif;
+    font-style: normal;
+    display: block;
+    font-size: 30px;
+    margin-top: 4px;
+    letter-spacing: -0.02em;
+  }
+  .confirm-detail .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px dashed rgba(0,0,0,0.2);
+  }
+  .confirm-detail .row:last-child { border-bottom: none; }
+  .confirm-detail .row .k {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  .confirm-detail .row .v { font-weight: 500; }
+
+  .line-cta {
+    width: 100%;
+    padding: 18px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--line-green);
+    color: #fff;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: all .12s ease;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .line-cta:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0 var(--ink);
+  }
+  .line-cta svg { width: 24px; height: 24px; }
+  .line-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 16px;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+  }
+  .line-note strong { color: var(--ink); font-weight: 600; }
+  .secondary-link {
+    background: none;
+    border: none;
+    color: var(--muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 18px;
+    padding: 8px;
+    letter-spacing: 0.04em;
+  }
+  .secondary-link:hover { color: var(--ink); }
+
+  /* ---------- Footer ---------- */
+  footer {
+    border-top: 1.5px solid var(--ink);
+    background: var(--ink);
+    color: var(--cream);
+    padding: 28px 24px;
+    margin-top: 40px;
+  }
+  footer .ft-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  footer .ft-brand {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+  }
+  footer .ft-meta {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--cream-deep);
+  }
+  footer .ft-dot { margin: 0 10px; opacity: 0.5; }
+
+  /* ---------- Utility ---------- */
+  .hidden { display: none !important; }
+
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .anim { animation: pop .4s cubic-bezier(.2,.7,.3,1.2) both; }
+
+  @keyframes drawCheck {
+    from { stroke-dashoffset: 50; }
+    to { stroke-dashoffset: 0; }
+  }
+  .check-path {
+    stroke-dasharray: 50;
+    animation: drawCheck .6s ease-out .2s both;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ========== BOOKING VIEW ========== -->
+  <div id="booking-view">
+
+    <div class="topbar">
+      <div class="brand">
+        <img src="data:image/jpeg;base64,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" alt="Nail Nery Studio">
+        <div class="name">
+          NAIL NERY
+          <small>Studio</small>
+        </div>
+      </div>
+      <div class="hours">
+        Open Daily · <strong>13:00 — 18:00</strong>
+      </div>
+    </div>
+
+    <section class="hero">
+      <span class="star s1">✦</span>
+      <span class="star s2">✦</span>
+      <span class="star s3">✦</span>
+      <div class="eyebrow">By Appointment Only</div>
+      <h1 class="display">
+        Book Your<br>
+        <span class="row2">nail moment.</span>
+      </h1>
+      <p>เลือกวันและรอบเวลาที่สะดวก แล้วกรอกข้อมูลเพื่อยืนยันการจอง<br>รอบเปิดทำการ <strong>13:00 · 15:00 · 17:00</strong> ทุกวัน</p>
+    </section>
+
+    <main>
+      <div class="grid">
+
+        <!-- Calendar -->
+        <section class="card" aria-label="ปฏิทิน">
+          <div class="card-title">
+            <span class="step-tag">01</span>
+            <h2>Pick a Date</h2>
+            <span class="hint">เลือกวัน</span>
+          </div>
+
+          <div class="cal-head">
+            <div class="month" id="cal-month">—</div>
+            <div class="cal-nav">
+              <button id="cal-prev" aria-label="เดือนก่อนหน้า">‹</button>
+              <button id="cal-next" aria-label="เดือนถัดไป">›</button>
+            </div>
+          </div>
+
+          <div class="cal-dow">
+            <span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </section>
+
+        <!-- Time + form -->
+        <section class="card" aria-label="เวลาและรายละเอียด">
+          <div class="card-title">
+            <span class="step-tag">02</span>
+            <h2>Pick a Time</h2>
+            <span class="hint">เลือกเวลา</span>
+          </div>
+
+          <div id="slot-area">
+            <div class="slot-empty" id="slot-empty">
+              <span class="big">no date yet</span>
+              เลือกวันที่จากปฏิทินเพื่อดูรอบเวลาว่าง
+            </div>
+            <div id="slot-list" class="hidden">
+              <div class="slot-date" id="slot-date"></div>
+              <div class="slots" id="slots"></div>
+            </div>
+          </div>
+
+          <div id="form-area" class="hidden" style="margin-top: 28px;">
+            <div class="card-title" style="margin-top: 4px;">
+              <span class="step-tag">03</span>
+              <h2>Your Details</h2>
+              <span class="hint">ข้อมูลผู้จอง</span>
+            </div>
+
+            <div class="summary" id="summary"></div>
+
+            <form id="booking-form" novalidate>
+              <div class="form-row">
+                <label for="f-name">NAME <span class="req">ชื่อ-นามสกุล</span></label>
+                <input id="f-name" type="text" required placeholder="ชื่อของคุณ" autocomplete="name">
+              </div>
+              <div class="form-row">
+                <label for="f-phone">PHONE <span class="req">เบอร์โทร</span></label>
+                <input id="f-phone" type="tel" required placeholder="08x-xxx-xxxx" inputmode="tel" autocomplete="tel">
+              </div>
+              <div class="form-row">
+                <label for="f-line">LINE ID <span class="req">ไอดีไลน์</span></label>
+                <input id="f-line" type="text" required placeholder="@yourlineid" autocomplete="off">
+              </div>
+              <button type="submit" class="primary" id="submit-btn">
+                Confirm Booking <span class="arrow">→</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <footer>
+      <div class="ft-inner">
+        <div class="ft-brand">NAIL NERY STUDIO ✦</div>
+        <div class="ft-meta">
+          Open daily <span class="ft-dot">·</span> 13:00 — 18:00 <span class="ft-dot">·</span> By appointment
+        </div>
+      </div>
+    </footer>
+  </div>
+
+
+  <!-- ========== CONFIRMATION VIEW ========== -->
+  <div id="confirm-view" class="hidden">
+    <div class="confirm-wrap">
+      <div class="confirm-card anim">
+        <div class="check-wrap">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path class="check-path" d="M8 21 L17 30 L33 12" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="display">
+          You're In!
+          <em>see you soon.</em>
+        </h2>
+        <p class="sub">ขอบคุณค่ะ เราได้รับการจองของคุณเรียบร้อยแล้ว<br>กรุณาเพิ่มเพื่อนใน LINE เพื่อรับการยืนยันนัดหมาย</p>
+
+        <div class="confirm-detail">
+          <div class="when" id="c-when-date">—
+            <span class="time" id="c-when-time">—</span>
+          </div>
+          <div class="row"><span class="k">NAME</span><span class="v" id="c-name">—</span></div>
+          <div class="row"><span class="k">PHONE</span><span class="v" id="c-phone">—</span></div>
+          <div class="row"><span class="k">LINE ID</span><span class="v" id="c-line">—</span></div>
+          <div class="row"><span class="k">REF</span><span class="v" id="c-id">—</span></div>
+        </div>
+
+        <a href="https://lin.ee/ToZoUfi" target="_blank" rel="noopener" class="line-cta" id="line-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19.365 9.89c.50 0 .906.41.906.91s-.406.91-.906.91h-1.265v.81h1.265c.50 0 .906.41.906.91 0 .505-.406.91-.906.91h-2.17c-.50 0-.91-.405-.91-.91V8.18c0-.505.41-.91.91-.91h2.17c.50 0 .906.405.906.91 0 .505-.406.91-.906.91h-1.265v.81h1.265zm-3.5 3.45c0 .39-.25.735-.625.86-.095.03-.195.05-.295.05-.295 0-.57-.145-.74-.385l-2.22-3.02v2.495c0 .505-.405.91-.91.91-.5 0-.905-.405-.905-.91V8.18c0-.39.25-.735.62-.86.09-.03.19-.05.29-.05.295 0 .57.145.74.385l2.22 3.02V8.18c0-.505.41-.91.91-.91s.915.405.915.91v5.16zm-6.79 0c0 .505-.41.91-.91.91s-.91-.405-.91-.91V8.18c0-.505.41-.91.91-.91s.91.405.91.91v5.16zm-2.55.91H4.355c-.5 0-.91-.405-.91-.91V8.18c0-.505.41-.91.91-.91.505 0 .91.405.91.91v4.25h1.26c.505 0 .91.41.91.91 0 .505-.405.91-.91.91zM24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.815 4.27 8.85 10.035 9.612.39.085.92.255 1.055.59.12.305.08.78.04 1.085l-.17 1.025c-.055.305-.24 1.19 1.04.65 1.28-.54 6.91-4.07 9.42-6.97 1.745-1.915 2.58-3.85 2.58-5.992z"/>
+          </svg>
+          ADD FRIEND ON LINE
+        </a>
+        <p class="line-note">
+          <strong>กดเพิ่มเพื่อนเพื่อรับการยืนยันนัด</strong><br>
+          หากต้องเลื่อนหรือยกเลิกนัด ทักทายเราใน LINE ได้เลยค่ะ
+        </p>
+
+        <button class="secondary-link" id="back-btn">← จองเพิ่มอีกครั้ง</button>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+  // ---------- Config ----------
+  const TIMES = [
+    { time: '13:00', label: 'Afternoon' },
+    { time: '15:00', label: 'Late Afternoon' },
+    { time: '17:00', label: 'Evening' },
+  ];
+  const TH_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const TH_MONTHS_TH = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const TH_DAYS = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  const EN_DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Real LINE add-friend link
+  const LINE_ADD_URL = 'https://lin.ee/ToZoUfi';
+  document.getElementById('line-btn').href = LINE_ADD_URL;
+
+  // ---------- State ----------
+  let viewYear, viewMonth;
+  let selectedDate = null;
+  let selectedTime = null;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  viewYear = today.getFullYear();
+  viewMonth = today.getMonth();
+
+  // ---------- Supabase Client ----------
+  const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // cache ข้อมูลที่จองแล้วไว้ใน memory
+  let bookedSlots = {}; // { 'YYYY-MM-DD': ['13:00', '15:00'] }
+
+  async function loadBookedSlots() {
+    try {
+      const { data, error } = await _supabase
+        .from('bookings')
+        .select('booking_date, booking_time')
+        .eq('status', 'confirmed');
+      if (error) throw error;
+      bookedSlots = {};
+      (data || []).forEach(row => {
+        if (!bookedSlots[row.booking_date]) bookedSlots[row.booking_date] = [];
+        bookedSlots[row.booking_date].push(row.booking_time);
+      });
+    } catch(e) {
+      console.warn('Supabase load error:', e.message);
+    }
+  }
+
+  function isBooked(date, time) {
+    return !!(bookedSlots[date] && bookedSlots[date].includes(time));
+  }
+
+  async function saveBooking(date, time, data) {
+    const { error } = await _supabase.from('bookings').insert([{
+      booking_date: date,
+      booking_time: time,
+      customer_name: data.name,
+      customer_phone: data.phone,
+      customer_line: data.line,
+      ref_id: data.id,
+      status: 'confirmed'
+    }]);
+    if (error) throw error;
+    if (!bookedSlots[date]) bookedSlots[date] = [];
+    bookedSlots[date].push(time);
+  }
+
+  // ---------- Helpers ----------
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function dateKey(y, m, d) { return `${y}-${pad(m+1)}-${pad(d)}`; }
+  function formatDateLong(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return `${TH_DAYS[dt.getDay()]}ที่ ${d} ${TH_MONTHS_TH[m-1]} ${y + 543}`;
+  }
+  function formatDateEn(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return `${EN_DAYS[dt.getDay()]}, ${TH_MONTHS[m-1]} ${d}`;
+  }
+
+  // ---------- Calendar ----------
+  function renderCalendar() {
+    document.getElementById('cal-month').innerHTML =
+      `${TH_MONTHS[viewMonth]} <em>${viewYear}</em>`;
+
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+
+    const first = new Date(viewYear, viewMonth, 1);
+    const startWeekday = first.getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+    for (let i = 0; i < startWeekday; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day empty';
+      grid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const btn = document.createElement('button');
+      btn.className = 'cal-day';
+      btn.type = 'button';
+      btn.textContent = d;
+
+      const cellDate = new Date(viewYear, viewMonth, d);
+      cellDate.setHours(0,0,0,0);
+      const key = dateKey(viewYear, viewMonth, d);
+
+      if (cellDate < today) btn.disabled = true;
+      if (cellDate.getTime() === today.getTime()) btn.classList.add('today');
+      if (key === selectedDate) btn.classList.add('selected');
+
+      const allBookedToday = TIMES.every(t => isBooked(key, t.time));
+      if (allBookedToday && !btn.disabled) btn.classList.add('full');
+
+      btn.addEventListener('click', () => {
+        selectedDate = key;
+        selectedTime = null;
+        renderCalendar();
+        renderSlots();
+      });
+
+      grid.appendChild(btn);
+    }
+
+    const prevBtn = document.getElementById('cal-prev');
+    prevBtn.disabled = (viewYear === today.getFullYear() && viewMonth === today.getMonth());
+  }
+
+  // ---------- Slots ----------
+  function renderSlots() {
+    const empty = document.getElementById('slot-empty');
+    const list = document.getElementById('slot-list');
+    const formArea = document.getElementById('form-area');
+
+    if (!selectedDate) {
+      empty.classList.remove('hidden');
+      list.classList.add('hidden');
+      formArea.classList.add('hidden');
+      return;
+    }
+
+    empty.classList.add('hidden');
+    list.classList.remove('hidden');
+    document.getElementById('slot-date').innerHTML =
+      `SELECTED DATE<strong>${formatDateLong(selectedDate)}</strong>`;
+
+    const container = document.getElementById('slots');
+    container.innerHTML = '';
+
+    TIMES.forEach(slot => {
+      const booked = isBooked(selectedDate, slot.time);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'slot';
+      if (booked) btn.disabled = true;
+      if (selectedTime === slot.time) btn.classList.add('selected');
+
+      btn.innerHTML = `
+        <div>
+          <div class="time">${slot.time}</div>
+          <div class="label">${slot.label}</div>
+        </div>
+        <div class="status">${booked ? 'Booked' : 'Available'}</div>
+      `;
+
+      btn.addEventListener('click', () => {
+        selectedTime = slot.time;
+        renderSlots();
+        showForm();
+      });
+
+      container.appendChild(btn);
+    });
+
+    if (selectedTime) showForm();
+    else formArea.classList.add('hidden');
+  }
+
+  function showForm() {
+    const formArea = document.getElementById('form-area');
+    formArea.classList.remove('hidden');
+    document.getElementById('summary').innerHTML = `
+      <div class="row"><span>DATE</span><span>${formatDateLong(selectedDate)}</span></div>
+      <div class="row"><span>TIME</span><span>${selectedTime} น.</span></div>
+    `;
+  }
+
+  // ---------- Nav ----------
+  document.getElementById('cal-prev').addEventListener('click', () => {
+    if (viewYear === today.getFullYear() && viewMonth === today.getMonth()) return;
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', () => {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+
+  // ---------- Submit ----------
+  document.getElementById('booking-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('f-name').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const line = document.getElementById('f-line').value.trim();
+
+    if (!name || !phone || !line) { alert('กรุณากรอกข้อมูลให้ครบถ้วน'); return; }
+    if (!selectedDate || !selectedTime) { alert('กรุณาเลือกวันและเวลา'); return; }
+    if (isBooked(selectedDate, selectedTime)) {
+      alert('ขออภัย เวลานี้ถูกจองไปแล้ว');
+      renderSlots();
+      return;
+    }
+
+    const submitBtn = document.querySelector('#booking-form button.primary');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'กำลังบันทึก...';
+
+    try {
+      const id = 'NN' + Date.now().toString(36).toUpperCase().slice(-6);
+      const data = { name, phone, line, id, createdAt: new Date().toISOString() };
+      await saveBooking(selectedDate, selectedTime, data);
+
+      document.getElementById('c-when-date').firstChild.textContent = formatDateLong(selectedDate) + ' ';
+      document.getElementById('c-when-time').textContent = selectedTime + ' น.';
+      document.getElementById('c-name').textContent = name;
+      document.getElementById('c-phone').textContent = phone;
+      document.getElementById('c-line').textContent = line;
+      document.getElementById('c-id').textContent = '#' + id;
+
+      document.getElementById('booking-view').classList.add('hidden');
+      document.getElementById('confirm-view').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch(err) {
+      alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง\n' + err.message);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'CONFIRM BOOKING <span class="arrow">→</span>';
+    }
+  });
+
+  // ---------- Back ----------
+  document.getElementById('back-btn').addEventListener('click', () => {
+    selectedDate = null;
+    selectedTime = null;
+    document.getElementById('booking-form').reset();
+    document.getElementById('confirm-view').classList.add('hidden');
+    document.getElementById('booking-view').classList.remove('hidden');
+    renderCalendar();
+    renderSlots();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ---------- Init ----------
+  (async () => {
+    await loadBookedSlots();
+    renderCalendar();
+    renderSlots();
+  })();
+</script>
+
+</body>
+</html>
